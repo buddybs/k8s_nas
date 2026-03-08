@@ -1,0 +1,30 @@
+# F1 Predictor Ingress
+# Subdomain-based routing: f1.home.brettswift.com
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: f1-predictor-ingress
+  namespace: media
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    uptime-kuma.monitor/enabled: "true"
+    uptime-kuma.monitor/healthcheck-path: "/health"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - f1.home.brettswift.com
+    secretName: home-brettswift-com-tls
+  rules:
+  - host: f1.home.brettswift.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: f1-predictor
+            port:
+              number: 80
