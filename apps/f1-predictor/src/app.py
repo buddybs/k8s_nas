@@ -10,10 +10,14 @@ import sqlite3
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, g, flash, jsonify
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['DATABASE'] = os.environ.get('DATABASE_PATH', '/data/f1_predictions.db')
+
+# Fix for running behind reverse proxy (nginx ingress)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 
 # Database helpers
 def get_db():
